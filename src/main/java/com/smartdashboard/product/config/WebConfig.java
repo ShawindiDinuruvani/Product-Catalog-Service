@@ -8,9 +8,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // බ්‍රවුසරයේ /uploads/ කියලා පටන් ගන්නා URL එකක් ආවොත්,
-        // එය F:/uploads/ ෆෝල්ඩරයට යොමු කරන්න (Mapping)
+        // 'uploads' ෆෝල්ඩරයේ තියෙන පින්තූර /uploads/ පාරෙන් බලන්න පුළුවන් කරනවා
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:F:/uploads/");
+                .addResourceLocations("file:uploads/");
     }
 }

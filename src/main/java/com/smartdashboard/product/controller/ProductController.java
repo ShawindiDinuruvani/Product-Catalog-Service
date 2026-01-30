@@ -13,43 +13,43 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
 
     @Autowired
     private ProductRepository productRepository;
 
-    // 1. සියලුම බඩු බැලීම (Read All)
     @GetMapping
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    // 2. අලුත් බඩුවක් ඇතුළත් කිරීම (Create)
     @PostMapping
     public Product createProduct(@RequestBody Product product) {
         return productRepository.save(product);
     }
 
-    // 3. පින්තූරයක් Upload කිරීම (File Upload)
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
-            String uploadDir = "F:/uploads/";
-            // Upload කරන ෆෝල්ඩරය නැත්නම් එය සාදන්න
+
+            String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator;
+
             File directory = new File(uploadDir);
             if (!directory.exists()) directory.mkdirs();
 
-            File dest = new File(uploadDir + file.getOriginalFilename());
+
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            File dest = new File(uploadDir + fileName);
             file.transferTo(dest);
 
-            return ResponseEntity.ok("Image uploaded successfully: " + file.getOriginalFilename());
+
+            return ResponseEntity.ok(fileName);
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());
         }
     }
 
-    // 4. බඩුවක විස්තර වෙනස් කිරීම (Update)
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
         Product product = productRepository.findById(id)
@@ -59,18 +59,16 @@ public class ProductController {
         product.setDescription(productDetails.getDescription());
         product.setPrice(productDetails.getPrice());
         product.setStock(productDetails.getStock());
-        product.setImageUrl(productDetails.getImageUrl()); // Image URL එකත් Update කරන්න
+        product.setImageUrl(productDetails.getImageUrl());
+        product.setCategory(productDetails.getCategory());
 
-        Product updatedProduct = productRepository.save(product);
-        return ResponseEntity.ok(updatedProduct);
+        return ResponseEntity.ok(productRepository.save(product));
     }
 
-    // 5. බඩුවක් ඉවත් කිරීම (Delete)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-
         productRepository.delete(product);
         return ResponseEntity.noContent().build();
     }
