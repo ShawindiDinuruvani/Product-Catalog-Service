@@ -2,9 +2,13 @@ package com.smartdashboard.product.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
 public class User {
     @Id
@@ -17,5 +21,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // උදා: ADMIN, USER
+
+    @Column(nullable = false)
+    private String email;
+
+    private String role;
 }

@@ -9,6 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RestController
@@ -31,18 +35,20 @@ public class ProductController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File is empty");
+        }
+
         try {
+            String uploadDir = "uploads";
+            Path uploadPath = Paths.get(uploadDir);
 
-            String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator;
-
-            File directory = new File(uploadDir);
-            if (!directory.exists()) directory.mkdirs();
-
-
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            File dest = new File(uploadDir + fileName);
-            file.transferTo(dest);
-
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("\\s+", "_");
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             return ResponseEntity.ok(fileName);
         } catch (IOException e) {
